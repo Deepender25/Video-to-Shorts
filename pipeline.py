@@ -62,6 +62,7 @@ def run_download_phase(job_id: str) -> None:
         job["video_filename"] = os.path.basename(result["video_path"])
         job["srt_path"] = result["srt_path"]
         job["duration"] = result["duration"]
+        job["subtitle_lang"] = result.get("subtitle_lang", "en")
 
         # ── Step 2: Parse transcript ─────────────────────
         job["status"] = "parsing"
@@ -122,7 +123,8 @@ def run_analysis_phase(job_id: str) -> None:
         job["progress"] = 55
         job["message"] = "AI is analyzing the content..."
 
-        raw_clips = segment_transcript(formatted)
+        subtitle_lang = job.get("subtitle_lang", "en")
+        raw_clips = segment_transcript(formatted, subtitle_lang=subtitle_lang)
         if not raw_clips:
             raise ValueError("AI could not identify any suitable clips.")
 

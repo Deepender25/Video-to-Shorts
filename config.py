@@ -19,6 +19,6 @@ MIN_CLIP_DURATION = 20   # seconds
 MAX_CLIP_DURATION = 60   # seconds
 
 # ── Gemini settings ─────────────────────────────────
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-3-flash-preview"
 CHUNK_MINUTES = 7        # minutes per transcript chunk for long videos
 MAX_RETRIES = 3          # retries for API calls

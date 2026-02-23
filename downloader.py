@@ -311,10 +311,23 @@ def download_video(url: str, output_dir: str) -> dict:
             "This tool requires videos with captions. Please try a different video."
         )
 
+    # Detect subtitle language from filename (e.g. "video.hi.srt" → "hi")
+    subtitle_lang = "en"  # default
+    if srt_path:
+        basename = os.path.basename(srt_path)
+        # Pattern: videoId.LANG.srt  (e.g. dQw4w9WgXcQ.hi.srt)
+        parts = basename.rsplit(".", 2)
+        if len(parts) >= 3:
+            detected = parts[-2].lower()
+            if len(detected) <= 5:  # valid lang codes: "en", "hi", "en-US", etc.
+                subtitle_lang = detected
+    print(f"  Detected subtitle language: {subtitle_lang}")
+
     return {
         "video_path": video_path,
         "srt_path": srt_path,
         "title": title,
         "duration": duration,
         "video_id": video_id,
+        "subtitle_lang": subtitle_lang,
     }
