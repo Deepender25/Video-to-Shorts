@@ -64,12 +64,12 @@ A continuous clip that naturally tells a complete story on its own.
 - Use when a single moment is already powerful and self-contained
 - Still needs a strong hook and natural conclusion
 
-### Type 2: Compiled Shorts (30–120 seconds) ⭐ PREFERRED
+### Type 2: Compiled Shorts (30–150 seconds) ⭐ PREFERRED
 Multiple segments stitched together to create a BETTER story than any single segment could tell.
 - **Combine 2-4 segments** from different parts of the video
 - Each segment must flow naturally into the next (same topic/theme)
-- The combined short must feel like ONE cohesive narrative
-- Total duration of all segments combined: 30 to 120 seconds
+- The combined short must feel like ONE cohesive narrative without feeling jumpy or disjointed
+- Total duration of all segments combined: 30 to 150 seconds
 
 **Example**: For a video about someone's life story:
 - Segment 1 (0:30–0:55): The struggle/problem they faced
@@ -89,21 +89,22 @@ Multiple segments stitched together to create a BETTER story than any single seg
 
 - Greetings, intros, "hey guys", "namaste", "welcome"
 - Outros, subscribe reminders, "like share subscribe"
-- Mid-sentence cuts — always start AND end at natural speech boundaries
+- Mid-sentence cuts — always start AND end at natural pauses
 - Segments that need visual context the audio can't convey
 - Filler, repetition, or low-energy moments
-- Shorts where the segments feel disconnected or jarring when combined
+- Shorts where the segments feel disconnected, jarring, or junky when combined
+- Boring talking-head moments without a clear point; ensure the content is highly interesting from the viewer's POV
 
 ## STRICT RULES
 
 1. Each individual segment must be at least 8 seconds long
-2. Total short duration (all segments combined) must be 15–120 seconds
+2. Total short duration (all segments combined) must be 15–150 seconds (up to 2.5 minutes)
 3. Timestamps MUST come DIRECTLY from the transcript — NEVER invent timestamps
 4. Use the EXACT start time from the first line of each segment
 5. Use the EXACT end time from the last line of each segment
-6. Segments within a short must be from the SAME topic/theme
+6. Segments within a short must be from the SAME topic/theme and flow SEAMLESSLY like a natural conversation
 7. Shorts MUST NOT have overlapping segments with other shorts
-8. Find 2–6 shorts depending on content quality
+8. Only select solid "8/10" moments or better; skip mediocre or incomplete thoughts to maintain high consistent quality. The output MUST be interesting and valuable to the viewer.
 9. PREFER compiled multi-segment shorts over single-segment cuts
 10. Every timestamp must be a **number in SECONDS** (float), NOT "MM:SS"
 
@@ -232,13 +233,38 @@ def _extract_json(text: str) -> str | None:
                     candidate = _repair_json(text[brace_start:i + 1])
                     try:
                         data = json.loads(candidate)
-                        if "clips" in data:
+                        if isinstance(data, dict) and "clips" in data:
                             return candidate
                     except json.JSONDecodeError:
                         pass
                     break
 
         pos = brace_start + 1
+
+    # Strategy 2.5: Find balanced [ ] blocks (list of clips)
+    pos = 0
+    while pos < len(text):
+        bracket_start = text.find("[", pos)
+        if bracket_start == -1:
+            break
+
+        depth = 0
+        for i in range(bracket_start, len(text)):
+            if text[i] == "[":
+                depth += 1
+            elif text[i] == "]":
+                depth -= 1
+                if depth == 0:
+                    candidate = _repair_json(text[bracket_start:i + 1])
+                    try:
+                        data = json.loads(candidate)
+                        if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
+                            return candidate
+                    except json.JSONDecodeError:
+                        pass
+                    break
+
+        pos = bracket_start + 1
 
     # Strategy 3: whole text directly
     repaired = _repair_json(text)
@@ -340,7 +366,7 @@ DIALOGUE TRANSCRIPT:
                     {"role": "user", "parts": [{"text": user_prompt}]},
                 ],
                 generation_config=genai.types.GenerationConfig(
-                    temperature=0.4,
+                    temperature=0.2,
                     max_output_tokens=4096,
                     response_mime_type="application/json",
                 ),
@@ -362,7 +388,13 @@ DIALOGUE TRANSCRIPT:
                     )
 
             data = json.loads(json_str)
-            clips = data.get("clips", [])
+            clips = []
+            if isinstance(data, dict):
+                clips = data.get("clips", [])
+            elif isinstance(data, list):
+                clips = data
+            else:
+                raise ValueError("JSON must be a list of clips or an object containing a 'clips' array.")
 
             # Normalize to segments format
             normalized = _normalize_clips(clips)

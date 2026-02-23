@@ -1,6 +1,16 @@
 import os
 import subprocess
 import tempfile
+import shutil
+import re
+
+def _sanitize_filename(name: str) -> str:
+    """Remove weird characters to make a safe filename/foldername."""
+    # Keep alphanumeric, spaces, and dashes
+    safe = re.sub(r'[^\w\s-]', '', name)
+    # Replace multiple spaces with a single space
+    safe = re.sub(r'\s+', ' ', safe).strip()
+    return safe.replace(' ', '_')
 
 
 def cut_clips(video_path: str, clips: list[dict], output_dir: str) -> list[dict]:
@@ -27,24 +37,55 @@ def cut_clips(video_path: str, clips: list[dict], output_dir: str) -> list[dict]
         if not segments:
             continue
 
-        filename = f"short_{i}.mp4"
-        output_path = os.path.join(output_dir, filename)
+        raw_title = clip.get("title")
+        if not raw_title or raw_title == "Untitled":
+            raw_title = f"short_{i}"
+            
+        sanitized_title = _sanitize_filename(raw_title)
+        if not sanitized_title:
+            sanitized_title = f"short_{i}"
+            
+        clip_folder = os.path.join(output_dir, sanitized_title)
+        os.makedirs(clip_folder, exist_ok=True)
+        
+        video_filename = f"{sanitized_title}.mp4"
+        video_output_path = os.path.join(clip_folder, video_filename)
 
         try:
             if len(segments) == 1:
                 # Single segment — direct stream copy (fast)
-                success = _cut_single(video_path, segments[0], output_path)
+                success = _cut_single(video_path, segments[0], video_output_path)
             else:
                 # Multi-segment — cut + concatenate
-                success = _cut_and_concat(video_path, segments, output_path, output_dir, i)
+                success = _cut_and_concat(video_path, segments, video_output_path, output_dir, i)
 
-            if success and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+            if success and os.path.exists(video_output_path) and os.path.getsize(video_output_path) > 0:
+                # Write metadata text file
+                metadata_path = os.path.join(clip_folder, f"{sanitized_title}.txt")
+                with open(metadata_path, "w", encoding="utf-8") as f:
+                    f.write(f"Title: {clip.get('title')}\n")
+                    f.write(f"Hook: {clip.get('hook')}\n")
+                    f.write(f"Duration: {clip.get('duration', 0)} seconds\n")
+                    
+                # Zip the folder contents
+                zip_path_without_ext = clip_folder
+                shutil.make_archive(zip_path_without_ext, 'zip', clip_folder)
+                
+                # Clean up the unzipped folder to save space
+                try:
+                    shutil.rmtree(clip_folder)
+                except OSError:
+                    pass
+                
+                zip_filename = f"{sanitized_title}.zip"
+                final_output_path = f"{clip_folder}.zip"
+                
                 clip_result = clip.copy()
-                clip_result["output_path"] = output_path
-                clip_result["filename"] = filename
+                clip_result["output_path"] = final_output_path
+                clip_result["filename"] = zip_filename
                 results.append(clip_result)
                 seg_info = f"{len(segments)} segment(s)"
-                print(f"  ✓ Short {i}: {seg_info} → {filename}")
+                print(f"  ✓ Short {i}: {seg_info} → {zip_filename}")
             else:
                 print(f"  ✗ Short {i}: failed to produce output")
 
