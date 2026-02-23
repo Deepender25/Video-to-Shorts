@@ -4,6 +4,9 @@ venv/
 # Environment variables
 .env
 
+# Cookies (sensitive auth tokens)
+cookies.txt
+
 # Python cache
 __pycache__/
 *.py[cod]
