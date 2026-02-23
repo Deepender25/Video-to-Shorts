@@ -52,6 +52,8 @@ def job_status(job_id):
                 "filename": c.get("filename", ""),
                 "start": c.get("start", 0),
                 "end": c.get("end", 0),
+                "segments": c.get("segments", []),
+                "segment_count": len(c.get("segments", [])),
             }
             for c in job.get("clips", [])
         ],

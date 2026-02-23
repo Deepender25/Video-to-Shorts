@@ -11,33 +11,35 @@ _LANG_INSTRUCTIONS = {
     "hi": """
 ## Title Language: HINGLISH (Hindi + English in Roman Script)
 
-The transcript is in HINDI. You MUST write all titles in **Hinglish** — that means Hindi words written in English/Roman letters, mixed naturally with English words, exactly how Indian creators write titles on Instagram Reels & YouTube Shorts.
+The transcript is in HINDI. You MUST write all titles in **Hinglish** — Hindi words in Roman/English letters, mixed with English words, exactly how Indian creators write on Instagram Reels & YouTube Shorts.
 
-### Examples of GREAT Hinglish Titles:
+### Great Hinglish Title Examples:
 - "Isse Zyada Savage Reply Nahi Dekha Hoga 🔥"
 - "Ye Baat Sunke Sabke Hosh Ud Gaye 😱"
 - "Pyaar Ka Asli Matlab Kya Hai? 💔"
 - "Isne Sabki Band Baja Di 💀"
 - "Ye Reality Check Zaroor Suno 🎯"
+- "Ek Kahani Jo Dil Chhu Legi ❤️"
 
-### BAD titles (DO NOT write like this):
-- "A Discussion About Love" ← too boring, too English
-- "प्यार के बारे में बात" ← do NOT use Devanagari script
-- "Important conversation" ← generic, no emotion
+### BAD titles (NEVER write like this):
+- "A Discussion About Love" ← too English, too boring
+- "प्यार के बारे में बात" ← NO Devanagari script ever
+- "Important conversation" ← generic, zero emotion
 """,
     "en": """
 ## Title Language: ENGLISH
 
-The transcript is in ENGLISH. Write catchy, scroll-stopping English titles that would go viral on Instagram Reels & YouTube Shorts.
+Write catchy, scroll-stopping English titles for Instagram Reels & YouTube Shorts.
 
-### Examples of GREAT English Titles:
+### Great English Title Examples:
 - "He DESTROYED Her Ego in 10 Seconds 💀"
 - "This Life Advice Hits DIFFERENT at 3AM 🎯"
 - "Nobody Talks About This But It's SO True 😱"
 - "The Most Savage Comeback I've Ever Heard 🔥"
-- "This Changed My Entire Perspective on Life 💡"
+- "This Story Will Change How You Think Forever 💡"
+- "Wait For The Plot Twist at The End 😮"
 
-### BAD titles (DO NOT write like this):
+### BAD titles (NEVER write like this):
 - "A conversation about life" ← boring, generic
 - "Speaker talks about success" ← description, not a hook
 - "Discussion on relationships" ← nobody clicks this
@@ -45,70 +47,98 @@ The transcript is in ENGLISH. Write catchy, scroll-stopping English titles that 
 }
 
 
-SYSTEM_PROMPT = """You are an expert short-form video editor and viral content curator. You will receive a timestamped dialogue transcript from a YouTube video. Your task is to find the BEST segments that would work as standalone viral short-form videos (Reels, Shorts, TikTok).
+SYSTEM_PROMPT = """You are a world-class short-form video editor who creates VIRAL YouTube Shorts and Instagram Reels. You specialize in **storytelling** — turning long videos into compelling mini-stories that keep viewers hooked from first to last second.
 
-## What Makes a VIRAL Short-Form Clip
+## Your Superpower: Storytelling Through Compilation
 
-1. **Irresistible hook in the first 3 seconds** — the opening line must make viewers STOP scrolling
-2. **Self-contained story or idea** — the clip must make complete sense on its own, zero context needed
-3. **Emotional punch** — funny, shocking, controversial, motivational, OR deeply relatable moments
-4. **Clean start and end** — start at the BEGINNING of a thought, end at a NATURAL conclusion or punchline
-5. **Curiosity gap** — the viewer should feel compelled to watch till the end
+You don't just cut random interesting moments. You CREATE STORIES by:
+
+1. **Compiling multiple segments** from different parts of the video into one cohesive short
+2. **Building narrative arcs**: Hook → Context → Build-up → Climax/Payoff
+3. **Connecting the dots**: Taking related moments scattered across the video and weaving them into one powerful short
+
+## Two Types of Shorts You Create
+
+### Type 1: Single-Segment Shorts (15–60 seconds)
+A continuous clip that naturally tells a complete story on its own.
+- Use when a single moment is already powerful and self-contained
+- Still needs a strong hook and natural conclusion
+
+### Type 2: Compiled Shorts (30–120 seconds) ⭐ PREFERRED
+Multiple segments stitched together to create a BETTER story than any single segment could tell.
+- **Combine 2-4 segments** from different parts of the video
+- Each segment must flow naturally into the next (same topic/theme)
+- The combined short must feel like ONE cohesive narrative
+- Total duration of all segments combined: 30 to 120 seconds
+
+**Example**: For a video about someone's life story:
+- Segment 1 (0:30–0:55): The struggle/problem they faced
+- Segment 2 (3:15–3:45): The turning point/realization
+- Segment 3 (7:00–7:20): The result/transformation
+→ Together = a 75-second mini-documentary that tells a complete arc
+
+## What Makes Content Go VIRAL
+
+1. **Irresistible hook** — first 3 seconds must STOP the scroll
+2. **Emotional journey** — take viewers through feelings (curiosity → shock, sadness → hope, confusion → clarity)
+3. **Payoff at the end** — every short needs a satisfying conclusion or punchline
+4. **Relatability** — moments viewers can see themselves in
+5. **Curiosity gap** — create the NEED to watch till the end
 
 ## What to AVOID
 
-- Greetings, introductions, "hey guys", "namaste", "welcome to my channel"
-- Outros, subscribe reminders, "like share and subscribe"
-- Incomplete thoughts or mid-sentence cuts
-- Segments that only make sense with visuals the audio alone cannot convey
-- Filler talk, repetitive content, or low-energy moments
-- Content that needs the previous or next 10 seconds to make sense
+- Greetings, intros, "hey guys", "namaste", "welcome"
+- Outros, subscribe reminders, "like share subscribe"
+- Mid-sentence cuts — always start AND end at natural speech boundaries
+- Segments that need visual context the audio can't convey
+- Filler, repetition, or low-energy moments
+- Shorts where the segments feel disconnected or jarring when combined
 
-## Strict Rules
+## STRICT RULES
 
-- Each clip MUST be between 20 and 60 seconds long
-- Timestamps MUST come DIRECTLY from the transcript — do NOT invent or guess timestamps
-- Use the EXACT start time from the FIRST dialogue line you include in each clip
-- Use the EXACT end time from the LAST dialogue line you include in each clip
-- Clips MUST NOT overlap with each other
-- Find between 3 and 8 clips depending on video length and content quality
-- If the content has no strong standalone moments, return FEWER clips rather than forcing bad ones
-- EVERY timestamp must be a number in SECONDS (float), NOT in "MM:SS" format
+1. Each individual segment must be at least 8 seconds long
+2. Total short duration (all segments combined) must be 15–120 seconds
+3. Timestamps MUST come DIRECTLY from the transcript — NEVER invent timestamps
+4. Use the EXACT start time from the first line of each segment
+5. Use the EXACT end time from the last line of each segment
+6. Segments within a short must be from the SAME topic/theme
+7. Shorts MUST NOT have overlapping segments with other shorts
+8. Find 2–6 shorts depending on content quality
+9. PREFER compiled multi-segment shorts over single-segment cuts
+10. Every timestamp must be a **number in SECONDS** (float), NOT "MM:SS"
 
-## Timestamp Conversion Reference
+## Timestamp Conversion
 
-The transcript uses [MM:SS–MM:SS] format. Convert to total seconds:
-- "0:00" → 0.0
-- "0:45" → 45.0
-- "1:30" → 90.0
-- "2:15" → 135.0
-- "5:00" → 300.0
-- "12:45" → 765.0
+Transcript uses [MM:SS–MM:SS]. Convert to seconds:
+- "0:00" → 0.0, "0:45" → 45.0, "1:30" → 90.0
+- "2:15" → 135.0, "5:00" → 300.0, "12:45" → 765.0
 
-## Title Guidelines
+## Title Rules
 
-- Titles MUST be 5-12 words, catchy, and scroll-stopping
+- 5–12 words, catchy, scroll-stopping
 - Use power words: DESTROYED, SAVAGE, INSANE, SHOCKING, NOBODY, TRUTH
-- Add 1 emoji at the end for visual pop
-- Write titles that create a CURIOSITY GAP — make people NEED to watch
-- NEVER write boring, descriptive titles like "Speaker discusses topic"
+- Add 1 emoji at the end
+- Create a CURIOSITY GAP — make people NEED to watch
+- NEVER write boring descriptive titles
 
 {lang_instructions}
 
-## Output Format
-
-Return ONLY a valid JSON object. No markdown fences. No commentary. No explanation.
+## Output Format (STRICT JSON, nothing else)
 
 {{
   "clips": [
     {{
-      "start": <seconds as float>,
-      "end": <seconds as float>,
-      "title": "<catchy viral title>",
-      "hook": "<the exact opening line of the clip from the transcript>"
+      "title": "<viral title>",
+      "hook": "<exact opening line from transcript>",
+      "segments": [
+        {{"start": <seconds>, "end": <seconds>}},
+        {{"start": <seconds>, "end": <seconds>}}
+      ]
     }}
   ]
-}}"""
+}}
+
+Each clip MUST have a "segments" array (even single-segment clips should have exactly one entry in the array)."""
 
 
 def _mmss_to_seconds(mmss: str) -> float:
@@ -123,7 +153,6 @@ def _chunk_transcript(formatted_text: str, chunk_minutes: int = CHUNK_MINUTES) -
     """
     Split a formatted transcript into time-based chunks.
     Each chunk covers roughly `chunk_minutes` worth of content.
-    Works with the compact MM:SS–MM:SS format.
     """
     lines = formatted_text.strip().split("\n")
     if not lines:
@@ -134,7 +163,6 @@ def _chunk_transcript(formatted_text: str, chunk_minutes: int = CHUNK_MINUTES) -
     chunk_start_time = None
 
     for line in lines:
-        # Extract start time from "[M:SS–M:SS] text" format
         try:
             time_part = line.split("–")[0].replace("[", "").strip()
             start_time = _mmss_to_seconds(time_part)
@@ -145,7 +173,6 @@ def _chunk_transcript(formatted_text: str, chunk_minutes: int = CHUNK_MINUTES) -
         if chunk_start_time is None:
             chunk_start_time = start_time
 
-        # Check if we've exceeded the chunk duration
         if start_time - chunk_start_time >= chunk_minutes * 60 and current_chunk:
             chunks.append("\n".join(current_chunk))
             current_chunk = [line]
@@ -153,7 +180,6 @@ def _chunk_transcript(formatted_text: str, chunk_minutes: int = CHUNK_MINUTES) -
         else:
             current_chunk.append(line)
 
-    # Don't forget the last chunk
     if current_chunk:
         chunks.append("\n".join(current_chunk))
 
@@ -166,31 +192,20 @@ def _strip_think_blocks(text: str) -> str:
 
 
 def _repair_json(text: str) -> str:
-    """
-    Attempt to repair common JSON issues from LLM output:
-    - Trailing commas before } or ]
-    - Single quotes → double quotes (careful with apostrophes)
-    - Unquoted keys
-    """
-    # Remove trailing commas: ", }" or ", ]"
-    text = re.sub(r",\s*([}\]])", r"\1", text)
-
-    # Remove any BOM or zero-width chars
-    text = text.replace("\ufeff", "").replace("\u200b", "")
-
+    """Fix common JSON issues from LLM output."""
+    text = re.sub(r",\s*([}\]])", r"\1", text)  # trailing commas
+    text = text.replace("\ufeff", "").replace("\u200b", "")  # invisible chars
     return text
 
 
 def _extract_json(text: str) -> str | None:
     """
     Robustly extract a JSON object from Gemini's response.
-    Handles markdown fences, thinking blocks, surrounding text,
-    common formatting issues, and multiple brace positions.
+    Handles markdown fences, thinking blocks, and multiple brace positions.
     """
-    # Pre-clean: strip think blocks
     text = _strip_think_blocks(text)
 
-    # Strategy 1: Find JSON inside markdown code fences
+    # Strategy 1: JSON inside markdown code fences
     fence_match = re.search(r"```(?:json)?\s*\n?(.*?)```", text, re.DOTALL)
     if fence_match:
         candidate = _repair_json(fence_match.group(1).strip())
@@ -200,8 +215,7 @@ def _extract_json(text: str) -> str | None:
         except json.JSONDecodeError:
             pass
 
-    # Strategy 2: Find every { and try balanced brace extraction
-    # Try all { positions, not just the first one
+    # Strategy 2: Find balanced { } blocks, prefer ones with "clips" key
     pos = 0
     while pos < len(text):
         brace_start = text.find("{", pos)
@@ -218,7 +232,6 @@ def _extract_json(text: str) -> str | None:
                     candidate = _repair_json(text[brace_start:i + 1])
                     try:
                         data = json.loads(candidate)
-                        # Verify it has the expected structure
                         if "clips" in data:
                             return candidate
                     except json.JSONDecodeError:
@@ -227,7 +240,7 @@ def _extract_json(text: str) -> str | None:
 
         pos = brace_start + 1
 
-    # Strategy 3: Try the whole text directly (after repair)
+    # Strategy 3: whole text directly
     repaired = _repair_json(text)
     try:
         json.loads(repaired)
@@ -235,15 +248,54 @@ def _extract_json(text: str) -> str | None:
     except json.JSONDecodeError:
         pass
 
-    # Log what we got for debugging
     preview = text[:500].replace("\n", " ")
     print(f"  ✗ Could not extract JSON. Response preview: {preview}")
     return None
 
 
+def _normalize_clips(clips: list[dict]) -> list[dict]:
+    """
+    Normalize clip format: ensure every clip has a `segments` array.
+    Handles both old format {start, end} and new format {segments: [...]}.
+    """
+    normalized = []
+    for clip in clips:
+        if "segments" in clip and isinstance(clip["segments"], list):
+            # New format — validate each segment has start/end
+            valid_segs = []
+            for seg in clip["segments"]:
+                try:
+                    valid_segs.append({
+                        "start": float(seg["start"]),
+                        "end": float(seg["end"]),
+                    })
+                except (KeyError, ValueError, TypeError):
+                    continue
+            if valid_segs:
+                normalized.append({
+                    "title": str(clip.get("title", "Untitled")),
+                    "hook": str(clip.get("hook", "")),
+                    "segments": valid_segs,
+                })
+        elif "start" in clip and "end" in clip:
+            # Old format — convert to segments array
+            try:
+                normalized.append({
+                    "title": str(clip.get("title", "Untitled")),
+                    "hook": str(clip.get("hook", "")),
+                    "segments": [{
+                        "start": float(clip["start"]),
+                        "end": float(clip["end"]),
+                    }],
+                })
+            except (ValueError, TypeError):
+                continue
+
+    return normalized
+
+
 def _get_lang_instructions(subtitle_lang: str) -> str:
     """Get the language-specific prompt block."""
-    # Normalize: "hi", "hi-IN" etc → "hi"
     base_lang = subtitle_lang.split("-")[0].lower()
     return _LANG_INSTRUCTIONS.get(base_lang, _LANG_INSTRUCTIONS["en"])
 
@@ -256,8 +308,7 @@ def _call_gemini(
 ) -> list[dict]:
     """
     Send a single transcript chunk to Gemini and parse the response.
-    Uses response_mime_type to force JSON output.
-    Retries up to MAX_RETRIES on failure.
+    Returns normalized clips with segments arrays.
     """
     genai.configure(api_key=GEMINI_API_KEY)
     model = genai.GenerativeModel(GEMINI_MODEL)
@@ -267,9 +318,13 @@ def _call_gemini(
 
     chunk_info = ""
     if total_chunks > 1:
-        chunk_info = f"\n\nNOTE: This is chunk {chunk_index + 1} of {total_chunks} from a longer video. Focus only on the timestamps in this chunk."
+        chunk_info = (
+            f"\n\nNOTE: This is chunk {chunk_index + 1} of {total_chunks} "
+            "from a longer video. Focus only on timestamps in this chunk. "
+            "Prefer compiled multi-segment shorts that tell a story arc."
+        )
 
-    user_prompt = f"""Analyze the following timestamped dialogue transcript and identify the best clips for short-form video content. Return ONLY valid JSON, no markdown fences, no commentary.{chunk_info}
+    user_prompt = f"""Analyze this transcript and create the most VIRAL short-form video content possible. Prefer COMPILED shorts that combine multiple segments into a storytelling arc. Return ONLY valid JSON.{chunk_info}
 
 DIALOGUE TRANSCRIPT:
 {transcript_text}"""
@@ -281,7 +336,7 @@ DIALOGUE TRANSCRIPT:
             response = model.generate_content(
                 [
                     {"role": "user", "parts": [{"text": system_prompt}]},
-                    {"role": "model", "parts": [{"text": "I will analyze the transcript and return only valid JSON with the best viral clips using exact timestamps."}]},
+                    {"role": "model", "parts": [{"text": "I will analyze the transcript for storytelling arcs, find the best segments to compile into viral shorts, and return only valid JSON with the segments array format."}]},
                     {"role": "user", "parts": [{"text": user_prompt}]},
                 ],
                 generation_config=genai.types.GenerationConfig(
@@ -294,12 +349,9 @@ DIALOGUE TRANSCRIPT:
             raw = response.text.strip()
             print(f"  Gemini response: {len(raw)} chars")
 
-            # With response_mime_type, the output should be clean JSON
-            # But still try extraction as a safety net
             json_str = _extract_json(raw)
 
             if not json_str:
-                # Last resort: try raw directly
                 try:
                     json.loads(raw)
                     json_str = raw
@@ -312,23 +364,17 @@ DIALOGUE TRANSCRIPT:
             data = json.loads(json_str)
             clips = data.get("clips", [])
 
-            # Validate each clip has required fields
-            valid_clips = []
-            for clip in clips:
-                if all(k in clip for k in ("start", "end", "title")):
-                    # Ensure start/end are numbers
-                    try:
-                        clip["start"] = float(clip["start"])
-                        clip["end"] = float(clip["end"])
-                        valid_clips.append(clip)
-                    except (ValueError, TypeError):
-                        print(f"  ⚠ Skipping clip with non-numeric timestamps: {clip}")
-                        continue
+            # Normalize to segments format
+            normalized = _normalize_clips(clips)
 
-            if valid_clips:
-                return valid_clips
+            if normalized:
+                # Log what we got
+                for c in normalized:
+                    seg_count = len(c["segments"])
+                    total_dur = sum(s["end"] - s["start"] for s in c["segments"])
+                    print(f"    → \"{c['title']}\" ({seg_count} segment(s), {total_dur:.0f}s)")
+                return normalized
 
-            # Got JSON but no valid clips — don't retry, just return empty
             print("  ⚠ Gemini returned valid JSON but no usable clips")
             return []
 
@@ -339,11 +385,10 @@ DIALOGUE TRANSCRIPT:
                 print(f"    Waiting {wait}s before retry...")
                 time.sleep(wait)
                 continue
-            print(f"  ✗ Gemini returned invalid JSON after {MAX_RETRIES} attempts")
-            print(f"    Last response preview: {raw[:300] if 'raw' in dir() else 'N/A'}")
+            print(f"  ✗ Invalid JSON after {MAX_RETRIES} attempts")
             raise ValueError(
                 f"Gemini returned invalid JSON after {MAX_RETRIES} attempts. "
-                "The model may be overloaded — try again in a moment."
+                "Try again in a moment."
             )
 
         except Exception as e:
@@ -363,15 +408,10 @@ def segment_transcript(
     subtitle_lang: str = "en",
 ) -> list[dict]:
     """
-    Segment a formatted transcript into clips using Gemini API.
-    Automatically handles long transcripts by chunking.
-
-    Args:
-        formatted_text: The compact MM:SS transcript text
-        subtitle_lang: Language code (e.g. "hi", "en") for language-aware titles
+    Segment a formatted transcript into compiled shorts using Gemini API.
 
     Returns:
-        list of {start, end, title, hook}
+        list of {title, hook, segments: [{start, end}, ...]}
     """
     chunks = _chunk_transcript(formatted_text)
     all_clips = []
@@ -384,6 +424,6 @@ def segment_transcript(
         print(f"  Processing chunk {i + 1}/{total}...")
         clips = _call_gemini(chunk, i, total, subtitle_lang=subtitle_lang)
         all_clips.extend(clips)
-        print(f"  ✓ Got {len(clips)} clips from chunk {i + 1}")
+        print(f"  ✓ Got {len(clips)} shorts from chunk {i + 1}")
 
     return all_clips

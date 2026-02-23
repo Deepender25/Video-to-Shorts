@@ -15,8 +15,8 @@ os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 os.makedirs(OUTPUTS_DIR, exist_ok=True)
 
 # ── Clip constraints ────────────────────────────────
-MIN_CLIP_DURATION = 20   # seconds
-MAX_CLIP_DURATION = 60   # seconds
+MIN_CLIP_DURATION = 15   # seconds (per segment)
+MAX_CLIP_DURATION = 120  # seconds (total short duration, up to 2 min)
 
 # ── Gemini settings ─────────────────────────────────
 GEMINI_MODEL = "gemini-3-flash-preview"
