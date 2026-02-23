@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video to Shorts — AI Clip Generator</title>
+    <meta name="description"
+        content="Convert long YouTube videos into viral short-form clips using AI-powered caption analysis.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-brand">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            <span>Video to Shorts</span>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <h1>Turn long videos into<br><span class="text-accent">viral shorts</span></h1>
+            <p class="hero-sub">AI-powered caption analysis identifies the most engaging moments and creates
+                ready-to-post clips in seconds.</p>
+
+            <!-- Input Card -->
+            <div class="input-card">
+                <form id="processForm">
+                    <div class="input-row">
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                            </svg>
+                            <input type="text" id="urlInput" placeholder="Paste a YouTube URL..." autocomplete="off"
+                                spellcheck="false">
+                        </div>
+                        <button type="submit" id="submitBtn" class="btn-primary">
+                            <span class="btn-text">Generate Shorts</span>
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Features -->
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>20–60s Clips</h3>
+                        <p>Optimized for all short-form platforms</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>Caption-Driven AI</h3>
+                        <p>Uses transcript semantics, not raw video</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>Instant Export</h3>
+                        <p>Lossless quality with no re-encoding</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Section (hidden initially) -->
+        <section class="progress-section hidden" id="progressSection">
+            <div class="progress-card">
+                <div class="progress-header">
+                    <h2 id="progressTitle">Processing...</h2>
+                    <span class="progress-badge" id="progressBadge">0%</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+                <p class="progress-message" id="progressMessage">Initializing...</p>
+
+                <div class="progress-steps">
+                    <div class="step" id="step-downloading">
+                        <div class="step-dot"></div>
+                        <span>Download</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step-parsing">
+                        <div class="step-dot"></div>
+                        <span>Parse</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step-review">
+                        <div class="step-dot"></div>
+                        <span>Review</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step-analyzing">
+                        <div class="step-dot"></div>
+                        <span>Analyze</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step-validating">
+                        <div class="step-dot"></div>
+                        <span>Validate</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step-cutting">
+                        <div class="step-dot"></div>
+                        <span>Export</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Review Section (hidden initially) -->
+        <section class="review-section hidden" id="reviewSection">
+            <div class="review-card">
+                <div class="review-header">
+                    <h2 id="reviewTitle">Review Before AI Analysis</h2>
+                    <p class="review-subtitle" id="reviewSubtitle">Check the downloaded video and transcript, then
+                        proceed.</p>
+                </div>
+
+                <!-- Video Preview -->
+                <div class="review-video-container">
+                    <video id="reviewVideo" controls preload="metadata">
+                        Your browser does not support video playback.
+                    </video>
+                </div>
+
+                <!-- Transcript Panel -->
+                <div class="review-transcript-container">
+                    <div class="review-transcript-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <polyline points="10 9 9 9 8 9" />
+                            </svg>
+                            Transcript
+                        </h3>
+                        <span class="transcript-count" id="transcriptCount">0 segments</span>
+                    </div>
+                    <div class="review-transcript-body" id="transcriptBody">
+                        <p class="transcript-loading">Loading transcript...</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="review-actions">
+                    <button class="btn-secondary" id="cancelReviewBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                        Start Over
+                    </button>
+                    <button class="btn-primary btn-proceed" id="proceedBtn">
+                        <span class="btn-text">Proceed to AI Analysis</span>
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section (hidden initially) -->
+        <section class="results-section hidden" id="resultsSection">
+            <div class="results-header">
+                <h2>Your Shorts are Ready</h2>
+                <p id="videoTitle" class="results-subtitle"></p>
+            </div>
+            <div class="clips-grid" id="clipsGrid">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="results-actions">
+                <button class="btn-secondary" id="newVideoBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    Process Another Video
+                </button>
+            </div>
+        </section>
+
+        <!-- Error Section (hidden initially) -->
+        <section class="error-section hidden" id="errorSection">
+            <div class="error-card">
+                <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="15" y1="9" x2="9" y2="15" />
+                    <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                <h3>Something went wrong</h3>
+                <p id="errorMessage"></p>
+                <button class="btn-secondary" id="retryBtn">Try Again</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Built with Gemini AI · FFmpeg · yt-dlp</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
