@@ -105,7 +105,7 @@ def _download_video_cli(url: str, output_dir: str, video_id: str) -> str | None:
 
     cmd = [
         YTDLP_BIN,
-        "--format", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best",
+        "--format", "bestvideo+bestaudio/best",
         "--merge-output-format", "mp4",
         "--no-playlist",
         "--no-warnings",
