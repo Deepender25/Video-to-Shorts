@@ -51,11 +51,31 @@ function updateSteps(currentStatus) {
 
 // ── Show/Hide Sections ──────────────────────────────
 function showSection(section) {
-    [heroSection, progressSection, reviewSection, resultsSection, errorSection].forEach(s => {
-        s.classList.add('hidden');
-    });
-    section.classList.remove('hidden');
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const sections = [heroSection, progressSection, reviewSection, resultsSection, errorSection];
+    const activeSection = sections.find(s => !s.classList.contains('hidden') && s !== section);
+
+    if (activeSection) {
+        activeSection.classList.add('section-exit');
+        setTimeout(() => {
+            activeSection.classList.add('hidden');
+            activeSection.classList.remove('section-exit');
+
+            section.classList.remove('hidden');
+            section.classList.add('section-enter');
+            setTimeout(() => section.classList.remove('section-enter'), 250);
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+    } else {
+        sections.forEach(s => {
+            if (s !== section) s.classList.add('hidden');
+        });
+        section.classList.remove('hidden');
+        if (!section.classList.contains('section-enter')) {
+            section.classList.add('section-enter');
+            setTimeout(() => section.classList.remove('section-enter'), 250);
+        }
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function resetToHero() {
@@ -256,7 +276,7 @@ function showResults(data, jobId) {
                 ${clip.hook ? `<div class="clip-hook">"${escapeHtml(clip.hook)}"</div>` : ''}
                 <div class="clip-meta">
                     <span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
                             <circle cx="12" cy="12" r="10"/>
                             <polyline points="12 6 12 12 16 14"/>
                         </svg>
@@ -267,7 +287,7 @@ function showResults(data, jobId) {
             </div>
             <div class="clip-actions">
                 <a href="/api/download/${jobId}/${clip.filename}" class="btn-download" download>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
