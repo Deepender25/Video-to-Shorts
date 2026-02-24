@@ -18,8 +18,8 @@ def cut_clips(video_path: str, clips: list[dict], output_dir: str) -> list[dict]
     Cut video into shorts using FFmpeg.
 
     Supports both single-segment and multi-segment (compiled) clips.
-    - Single segment: direct stream copy
-    - Multi segment: cut each segment, then concatenate with FFmpeg concat demuxer
+    - Single segment: cuts and applies 9:16 crop filter
+    - Multi segment: cuts each segment with 9:16 crop filter, then concatenates
 
     Args:
         video_path: path to the source video
@@ -53,7 +53,7 @@ def cut_clips(video_path: str, clips: list[dict], output_dir: str) -> list[dict]
 
         try:
             if len(segments) == 1:
-                # Single segment — direct stream copy (fast)
+                # Single segment — cut and crop to 9:16
                 success = _cut_single(video_path, segments[0], video_output_path)
             else:
                 # Multi-segment — cut + concatenate
@@ -97,15 +97,21 @@ def cut_clips(video_path: str, clips: list[dict], output_dir: str) -> list[dict]
 
 
 def _cut_single(video_path: str, segment: dict, output_path: str) -> bool:
-    """Cut a single continuous segment using stream copy."""
+    """Cut a single continuous segment and format as 9:16 Shorts."""
     cmd = [
         "ffmpeg",
         "-y",
         "-ss", str(segment["start"]),
         "-to", str(segment["end"]),
         "-i", video_path,
-        "-c", "copy",
+        "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=black",
+        "-c:v", "libx264",
+        "-preset", "fast",
+        "-crf", "18",
+        "-c:a", "aac",
+        "-b:a", "192k",
         "-avoid_negative_ts", "make_zero",
+        "-movflags", "+faststart",
         output_path,
     ]
 
@@ -151,6 +157,7 @@ def _cut_and_concat(
                 "-ss", str(seg["start"]),
                 "-to", str(seg["end"]),
                 "-i", video_path,
+                "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=black",
                 "-c:v", "libx264",
                 "-preset", "fast",
                 "-crf", "18",           # high quality
