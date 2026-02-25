@@ -154,7 +154,11 @@ def _chunk_transcript(formatted_text: str, chunk_minutes: int = CHUNK_MINUTES) -
     """
     Split a formatted transcript into time-based chunks.
     Each chunk covers roughly `chunk_minutes` worth of content.
+    If the last chunk is shorter than MIN_LAST_CHUNK_MINUTES, it is merged
+    into the previous chunk so Gemini always gets substantial content.
     """
+    MIN_LAST_CHUNK_MINUTES = 2.5  # merge last chunk if shorter than this
+
     lines = formatted_text.strip().split("\n")
     if not lines:
         return []
@@ -162,6 +166,7 @@ def _chunk_transcript(formatted_text: str, chunk_minutes: int = CHUNK_MINUTES) -
     chunks = []
     current_chunk = []
     chunk_start_time = None
+    chunk_start_times = []
 
     for line in lines:
         try:
@@ -176,6 +181,7 @@ def _chunk_transcript(formatted_text: str, chunk_minutes: int = CHUNK_MINUTES) -
 
         if start_time - chunk_start_time >= chunk_minutes * 60 and current_chunk:
             chunks.append("\n".join(current_chunk))
+            chunk_start_times.append(chunk_start_time)
             current_chunk = [line]
             chunk_start_time = start_time
         else:
@@ -183,6 +189,26 @@ def _chunk_transcript(formatted_text: str, chunk_minutes: int = CHUNK_MINUTES) -
 
     if current_chunk:
         chunks.append("\n".join(current_chunk))
+        chunk_start_times.append(chunk_start_time or 0)
+
+    # Merge the last chunk into the previous one if it's too short.
+    if len(chunks) >= 2:
+        last_start = chunk_start_times[-1]
+        # Find the last timestamp in the last chunk to measure its duration
+        last_chunk_end = last_start
+        for line in chunks[-1].strip().split("\n"):
+            try:
+                time_part = line.split("–")[0].replace("[", "").strip()
+                last_chunk_end = _mmss_to_seconds(time_part)
+            except (ValueError, IndexError):
+                continue
+
+        last_chunk_duration = last_chunk_end - last_start
+        if last_chunk_duration < MIN_LAST_CHUNK_MINUTES * 60:
+            print(f"  Merging short last chunk ({last_chunk_duration:.0f}s) into previous chunk")
+            chunks[-2] = chunks[-2] + "\n" + chunks[-1]
+            chunks.pop()
+            chunk_start_times.pop()
 
     return chunks
 
