@@ -8,9 +8,54 @@ from segmenter import segment_transcript
 from validator import validate_clips
 from cutter import cut_clips
 
+import re as _re
+
 
 # In-memory job store
 _jobs: dict[str, dict] = {}
+
+
+def _dedup_srt_for_subtitles(segments: list[dict]) -> list[dict]:
+    """
+    Remove YouTube rolling-window duplicate SRT entries using TIME, not text.
+
+    YouTube auto-captions produce overlapping entries like:
+      [0:01-0:03] "aapko aligarh ke bare"
+      [0:02-0:04] "aapko aligarh ke bare"   ← same text, overlapping time → DROP
+      [0:05-0:07] "theek hai"
+      ...
+      [1:15-1:17] "theek hai"               ← same text, DIFFERENT time → KEEP
+
+    Rule: drop an entry only if it overlaps in time with the previous KEPT entry
+    AND their texts are identical (case-insensitive). Same text at non-overlapping
+    times is always preserved — this is crucial for sync correctness.
+    """
+    if not segments:
+        return []
+
+    noise = _re.compile(r"\[.*?\]", _re.IGNORECASE)
+    result = []
+
+    for seg in segments:
+        text = noise.sub("", seg["text"]).strip()
+        text = _re.sub(r"\s+", " ", text).strip()
+        if not text or len(text) < 2:
+            continue
+
+        if result:
+            prev = result[-1]
+            # Only drop if this entry overlaps the previous one in time
+            overlaps_prev = seg["start"] < prev["end"]
+            same_text     = text.lower() == prev["text"].lower()
+            if overlaps_prev and same_text:
+                # Extend previous entry's end time to cover both
+                result[-1] = dict(prev)
+                result[-1]["end"] = max(prev["end"], seg["end"])
+                continue
+
+        result.append({"start": seg["start"], "end": seg["end"], "text": text})
+
+    return result
 
 
 def get_job(job_id: str) -> dict | None:
@@ -63,6 +108,18 @@ def run_download_phase(job_id: str) -> None:
         job["srt_path"] = result["srt_path"]
         job["duration"] = result["duration"]
         job["subtitle_lang"] = result.get("subtitle_lang", "en")
+
+        # Store subtitle-safe SRT segments for subtitle burning.
+        # Important: we do NOT use clean_transcript here because it removes ALL
+        # entries with the same text globally (across the whole video). If the
+        # speaker says the same phrase at t=10s and again at t=60s, the t=60s
+        # entry would be silently dropped, causing subtitle→audio sync failures
+        # for clips from later in the video.
+        # Instead we use _dedup_srt_for_subtitles which only de-duplicates
+        # entries that OVERLAP IN TIME (the YouTube rolling-window auto-caption
+        # pattern) without ever dropping same-text entries at different times.
+        raw_srt = parse_srt(result["srt_path"]) if result.get("srt_path") else []
+        job["raw_srt_segments"] = _dedup_srt_for_subtitles(raw_srt)
 
         # ── Step 2: Parse transcript ─────────────────────
         job["status"] = "parsing"
@@ -147,7 +204,8 @@ def run_analysis_phase(job_id: str) -> None:
 
         video_path = job.get("video_path", "")
         output_dir = os.path.join(OUTPUTS_DIR, job_id)
-        final_clips = cut_clips(video_path, valid_clips, output_dir)
+        srt_segments = job.get("raw_srt_segments") or None
+        final_clips = cut_clips(video_path, valid_clips, output_dir, srt_segments=srt_segments)
 
         if not final_clips:
             raise ValueError("FFmpeg could not produce any clips.")
