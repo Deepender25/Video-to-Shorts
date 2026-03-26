@@ -1,8 +1,8 @@
 import json
 import re
 import time
-import google.generativeai as genai
-from config import GEMINI_API_KEY, GEMINI_MODEL, CHUNK_MINUTES, MAX_RETRIES
+from openai import OpenAI
+from config import OPENROUTER_API_KEY, OPENROUTER_MODEL, CHUNK_MINUTES, MAX_RETRIES
 
 
 # ── Language-specific prompt blocks ──────────────────────────────────────
@@ -227,7 +227,7 @@ def _repair_json(text: str) -> str:
 
 def _extract_json(text: str) -> str | None:
     """
-    Robustly extract a JSON object from Gemini's response.
+    Robustly extract a JSON object from LLM's response.
     Handles markdown fences, thinking blocks, and multiple brace positions.
     """
     text = _strip_think_blocks(text)
@@ -352,18 +352,20 @@ def _get_lang_instructions(subtitle_lang: str) -> str:
     return _LANG_INSTRUCTIONS.get(base_lang, _LANG_INSTRUCTIONS["en"])
 
 
-def _call_gemini(
+def _call_llm(
     transcript_text: str,
     chunk_index: int,
     total_chunks: int,
     subtitle_lang: str = "en",
 ) -> list[dict]:
     """
-    Send a single transcript chunk to Gemini and parse the response.
+    Send a single transcript chunk to OpenRouter and parse the response.
     Returns normalized clips with segments arrays.
     """
-    genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel(GEMINI_MODEL)
+    client = OpenAI(
+        api_key=OPENROUTER_API_KEY,
+        base_url="https://openrouter.ai/api/v1"
+    )
 
     lang_instructions = _get_lang_instructions(subtitle_lang)
     system_prompt = SYSTEM_PROMPT.format(lang_instructions=lang_instructions)
@@ -383,23 +385,19 @@ DIALOGUE TRANSCRIPT:
 
     for attempt in range(MAX_RETRIES):
         try:
-            print(f"  Gemini attempt {attempt + 1}/{MAX_RETRIES}...")
+            print(f"  API attempt {attempt + 1}/{MAX_RETRIES}...")
 
-            response = model.generate_content(
-                [
-                    {"role": "user", "parts": [{"text": system_prompt}]},
-                    {"role": "model", "parts": [{"text": "I will analyze the transcript for storytelling arcs, find the best segments to compile into viral shorts, and return only valid JSON with the segments array format."}]},
-                    {"role": "user", "parts": [{"text": user_prompt}]},
+            response = client.chat.completions.create(
+                model=OPENROUTER_MODEL,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
                 ],
-                generation_config=genai.types.GenerationConfig(
-                    temperature=0.2,
-                    max_output_tokens=4096,
-                    response_mime_type="application/json",
-                ),
+                temperature=0.2,
             )
 
-            raw = response.text.strip()
-            print(f"  Gemini response: {len(raw)} chars")
+            raw = response.choices[0].message.content.strip()
+            print(f"  API response: {len(raw)} chars")
 
             json_str = _extract_json(raw)
 
@@ -433,7 +431,7 @@ DIALOGUE TRANSCRIPT:
                     print(f"    → \"{c['title']}\" ({seg_count} segment(s), {total_dur:.0f}s)")
                 return normalized
 
-            print("  ⚠ Gemini returned valid JSON but no usable clips")
+            print("  ⚠ API returned valid JSON but no usable clips")
             return []
 
         except json.JSONDecodeError as e:
@@ -445,19 +443,19 @@ DIALOGUE TRANSCRIPT:
                 continue
             print(f"  ✗ Invalid JSON after {MAX_RETRIES} attempts")
             raise ValueError(
-                f"Gemini returned invalid JSON after {MAX_RETRIES} attempts. "
+                f"API returned invalid JSON after {MAX_RETRIES} attempts. "
                 "Try again in a moment."
             )
 
         except Exception as e:
             if attempt < MAX_RETRIES - 1:
                 wait = 2 ** (attempt + 1)
-                print(f"  ⟳ Gemini API error (attempt {attempt + 1}): {e}")
+                print(f"  ⟳ API error (attempt {attempt + 1}): {e}")
                 print(f"    Waiting {wait}s before retry...")
                 time.sleep(wait)
                 continue
             raise RuntimeError(
-                f"Gemini API error after {MAX_RETRIES} attempts: {e}"
+                f"API error after {MAX_RETRIES} attempts: {e}"
             )
 
 
@@ -476,11 +474,11 @@ def segment_transcript(
     total = len(chunks)
 
     lang_label = "Hinglish" if subtitle_lang.startswith("hi") else "English"
-    print(f"  Sending {total} chunk(s) to Gemini (titles in {lang_label})...")
+    print(f"  Sending {total} chunk(s) to LLM API (titles in {lang_label})...")
 
     for i, chunk in enumerate(chunks):
         print(f"  Processing chunk {i + 1}/{total}...")
-        clips = _call_gemini(chunk, i, total, subtitle_lang=subtitle_lang)
+        clips = _call_llm(chunk, i, total, subtitle_lang=subtitle_lang)
         all_clips.extend(clips)
         print(f"  ✓ Got {len(clips)} shorts from chunk {i + 1}")
 
