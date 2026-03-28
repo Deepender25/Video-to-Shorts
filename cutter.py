@@ -43,11 +43,9 @@ def cut_clips(
 
         sanitized_title = _sanitize_filename(raw_title) or f"short_{i}"
 
-        clip_folder = os.path.join(output_dir, sanitized_title)
-        os.makedirs(clip_folder, exist_ok=True)
-
+        # Write directly to output_dir instead of making a subfolder
         video_filename = f"{sanitized_title}.mp4"
-        video_output_path = os.path.join(clip_folder, video_filename)
+        video_output_path = os.path.join(output_dir, video_filename)
 
         try:
             if len(segments) == 1:
@@ -59,29 +57,13 @@ def cut_clips(
                 )
 
             if success and os.path.exists(video_output_path) and os.path.getsize(video_output_path) > 0:
-                metadata_path = os.path.join(clip_folder, f"{sanitized_title}.txt")
-                with open(metadata_path, "w", encoding="utf-8") as f:
-                    f.write(f"Title: {clip.get('title')}\n")
-                    f.write(f"Hook: {clip.get('hook')}\n")
-                    f.write(f"Duration: {clip.get('duration', 0)} seconds\n")
-
-                zip_path_without_ext = clip_folder
-                shutil.make_archive(zip_path_without_ext, 'zip', clip_folder)
-                try:
-                    shutil.rmtree(clip_folder)
-                except OSError:
-                    pass
-
-                zip_filename = f"{sanitized_title}.zip"
-                final_output_path = f"{clip_folder}.zip"
-
                 clip_result = clip.copy()
-                clip_result["output_path"] = final_output_path
-                clip_result["filename"] = zip_filename
+                clip_result["output_path"] = video_output_path
+                clip_result["filename"] = video_filename
                 results.append(clip_result)
 
                 seg_info = f"{len(segments)} segment(s)"
-                print(f"  ✓ Short {i}: {seg_info} → {zip_filename}")
+                print(f"  ✓ Short {i}: {seg_info} → {video_filename}")
             else:
                 print(f"  ✗ Short {i}: failed to produce output")
 

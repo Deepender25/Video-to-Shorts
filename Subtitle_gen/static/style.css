@@ -1,0 +1,1065 @@
+:root {
+    /* Deep Space Palette - Blue/Teal Theme */
+    --bg-dark: #020617;
+    /* Slate 950 */
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-end: #020617;
+
+    /* Accents - Ocean & Emerald */
+    --primary: #0ea5e9;
+    /* Sky 500 */
+    --primary-glow: rgba(14, 165, 233, 0.4);
+    --secondary: #10b981;
+    /* Emerald 500 */
+    --secondary-glow: rgba(16, 185, 129, 0.4);
+    --accent-cyan: #22d3ee;
+    /* Cyan 400 */
+    --text-highlight: #e2e8f0;
+    /* Slate 200 */
+
+    /* Glassmorphism */
+    --glass-surface: rgba(15, 23, 42, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-highlight: rgba(255, 255, 255, 0.05);
+
+    /* Text */
+    --text-main: #f8fafc;
+    /* Slate 50 */
+    --text-muted: #94a3b8;
+    /* Slate 400 */
+    --text-dim: #64748b;
+    /* Slate 500 */
+
+    /* Status */
+    --success: #10b981;
+    --danger: #f43f5e;
+    /* Rose 500 */
+
+    /* Dimensions */
+    --header-height: 70px;
+    --radius-xl: 24px;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+
+    --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    font-family: var(--font-main);
+    color: var(--text-main);
+    overflow: hidden;
+    /* Prevent scroll on main body */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* UTILITIES */
+.hidden {
+    display: none !important;
+}
+
+/* Background Aesthetics */
+.bg-decoration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+    animation: float 20s infinite ease-in-out;
+}
+
+.orb-1 {
+    top: -10%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, var(--primary), transparent 70%);
+}
+
+.orb-2 {
+    bottom: -20%;
+    right: -10%;
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, var(--secondary), transparent 70%);
+    animation-delay: -5s;
+}
+
+.orb-3 {
+    top: 40%;
+    left: 40%;
+    width: 30vw;
+    height: 30vw;
+    background: radial-gradient(circle, var(--accent-cyan), transparent 70%);
+    opacity: 0.15;
+    animation-delay: -10s;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+
+    33% {
+        transform: translate(30px, -50px);
+    }
+
+    66% {
+        transform: translate(-20px, 20px);
+    }
+}
+
+/* Layout */
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+.app-header {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px var(--primary-glow);
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(to right, #fff, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    padding-bottom: 20px;
+}
+
+.main-card {
+    width: 100%;
+    height: 100%;
+    background: var(--glass-surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Section Transitions */
+.step-section {
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
+
+.step-section.hidden {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Upload View */
+.upload-container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.upload-zone {
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 16/9;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px dashed var(--glass-border);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-zone:hover {
+    border-color: var(--primary);
+    background: rgba(14, 165, 233, 0.05);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -10px var(--primary-glow);
+}
+
+.upload-content {
+    text-align: center;
+    z-index: 2;
+}
+
+.icon-pulse-wrapper {
+    margin-bottom: 24px;
+    color: var(--primary);
+    filter: drop-shadow(0 0 15px var(--primary-glow));
+    animation: pulse-glow 3s infinite ease-in-out;
+}
+
+.upload-content h2 {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.upload-content p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.tag {
+    display: inline-block;
+    padding: 6px 12px;
+    background: var(--glass-border);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+}
+
+/* Video Editor Suite - New Layout */
+.video-editor-suite {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 16px;
+    overflow: hidden;
+}
+
+/* Top Row: Video + Style Panel */
+.editor-top-row {
+    flex: 2;
+    /* Takes roughly 2/3 of height */
+    display: flex;
+    gap: 16px;
+    min-height: 0;
+    /* Important for nested flex scroll */
+}
+
+/* Video Preview Area */
+.video-preview-area {
+    flex: 3;
+    /* 75% width roughly */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    position: relative;
+}
+
+.video-wrapper {
+    flex: 1;
+    position: relative;
+    background: #000;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.video-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Subtitle Overlay (The "Burn" Preview) */
+.subtitle-overlay {
+    position: absolute;
+    bottom: 10%;
+    /* Default position */
+    left: 5%;
+    right: 5%;
+    text-align: center;
+    pointer-events: none;
+    /* Let clicks pass through to video */
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+.subtitle-overlay-text {
+    display: inline-block;
+    padding: 2px 4px;
+    border-radius: 4px;
+    /* Default Styles will be overridden by JS */
+    color: white;
+    font-size: 24px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Video Controls Bar - Pro Style */
+.video-controls-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-md);
+    margin-top: -8px;
+    /* Pull up closer to video or overlap? Let's keep separate */
+    z-index: 50;
+    gap: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.controls-left,
+.controls-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.control-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary);
+}
+
+.control-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.time-group {
+    font-family: 'Inter', monospace;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.separator {
+    color: var(--text-muted);
+}
+
+/* Volume */
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100px;
+    /* Expand on hover? */
+    transition: width 0.3s;
+}
+
+.volume-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--text-main);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* Fix Overlay Positioning */
+.video-wrapper {
+    position: relative;
+    /* Ensure absolute children are relative to this */
+}
+
+/* Play/Pause Center Overlay */
+.play-pause-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    width: auto;
+    height: auto;
+}
+
+/* Play/Pause Center Overlay moved to earlier block, ensuring style consistency */
+/* Keeping animation */
+.play-pause-overlay.animate {
+    animation: ping-scale 0.5s ease-out forwards;
+    /* Add forwards to ensure end state */
+}
+
+@keyframes ping-scale {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+/* Style Panel */
+.style-panel {
+    flex: 1;
+    /* 25% width */
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.panel-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.panel-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Style Inputs */
+.style-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: opacity 0.3s;
+}
+
+.style-controls.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    filter: blur(2px);
+}
+
+.no-selection-msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    width: 80%;
+    display: none;
+}
+
+.style-controls.disabled+.no-selection-msg {
+    display: block;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.range-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.range-wrapper input {
+    flex: 1;
+}
+
+.color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+}
+
+input[type="color"] {
+    width: 30px;
+    height: 30px;
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.styled-select {
+    width: 100%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.panel-footer {
+    padding: 16px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.btn-full {
+    width: 100%;
+    display: flex;
+}
+
+.mt-2 {
+    margin-top: 8px;
+}
+
+/* Bottom Row: Timeline Refined */
+.editor-bottom-row {
+    flex: 1;
+    background: #0b0f19;
+    /* Very dark slate */
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+    overflow: hidden;
+    /* No outer scroll */
+}
+
+/* Toolbar */
+.timeline-toolbar {
+    height: 40px;
+    padding: 0 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.toolbar-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.timeline-tools button {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-tools button:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Scroll Area & Container */
+.timeline-scroll-area {
+    flex: 1;
+    overflow: auto;
+    /* Both X and Y */
+    position: relative;
+    /* Custom Scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.timeline-content {
+    position: relative;
+    min-width: 100%;
+    /* Will grow with zoom */
+    min-height: 100%;
+}
+
+/* Ruler Layer */
+.timeline-ruler {
+    height: 32px;
+    background: #0f172a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    /* Above tracks */
+    cursor: pointer;
+    overflow: hidden;
+    user-select: none;
+}
+
+.ruler-tick {
+    position: absolute;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    height: 8px;
+    pointer-events: none;
+}
+
+.ruler-tick.major {
+    height: 14px;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.tick-label {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'Inter', monospace;
+}
+
+/* Tracks Layer */
+.timeline-tracks {
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.track {
+    display: flex;
+    height: 50px;
+    /* Fixed track height */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.track:nth-child(even) {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.track-header {
+    width: 100px;
+    /* Fixed header width in CSS? No, it scrolls with content? 
+       Actually, standard NLEs separate header from timestamp. 
+       For simplicity here: Stick header to left using sticky */
+    flex-shrink: 0;
+    position: sticky;
+    left: 0;
+    z-index: 40;
+    background: #0b0f19;
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.track-body {
+    flex: 1;
+    position: relative;
+    /* Segment container */
+    overflow: hidden;
+}
+
+/* Playhead Overlay */
+.timeline-playhead-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    /* Controlled by JS */
+    width: 0;
+    /* It's a line */
+    z-index: 60;
+    pointer-events: none;
+    /* Let clicks pass through except cap */
+    transform: translateX(0);
+}
+
+.playhead-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -1px;
+    width: 2px;
+    background: var(--danger);
+    box-shadow: 0 0 4px rgba(244, 63, 94, 0.5);
+}
+
+.playhead-cap {
+    position: absolute;
+    top: 0;
+    left: -7px;
+    /* Center over line */
+    width: 14px;
+    height: 14px;
+    background: var(--danger);
+    /* Arrow or Triangle shape */
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+    cursor: ew-resize;
+    /* Drag cursor */
+    pointer-events: auto;
+    /* Enable dragging */
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+.playhead-cap:hover {
+    transform: scale(1.2);
+}
+
+/* Segments */
+.timeline-segment {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    background: #1e293b;
+    /* Slate 800 */
+    border: 1px solid #334155;
+    /* Slate 700 */
+    border-radius: 6px;
+    cursor: pointer;
+    overflow: visible;
+    /* Allow handles to exceed? No, handles inside */
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: #e2e8f0;
+    font-size: 11px;
+    white-space: nowrap;
+    user-select: none;
+    transition: background 0.1s, border-color 0.1s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.timeline-segment:hover {
+    background: #334155;
+    border-color: #475569;
+    z-index: 10;
+}
+
+.timeline-segment.selected {
+    background: #0ea5e9;
+    /* Primary */
+    border-color: #7dd3fc;
+    color: white;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    z-index: 20;
+}
+
+/* Resize Handles */
+.segment-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    cursor: col-resize;
+    z-index: 5;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.segment-handle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.segment-handle.left {
+    left: 0;
+    border-radius: 6px 0 0 6px;
+}
+
+.segment-handle.right {
+    right: 0;
+    border-radius: 0 6px 6px 0;
+}
+
+/* Drag State */
+.timeline-segment.dragging {
+    opacity: 0.8;
+    cursor: grabbing;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transform: scale(1.02);
+}
+
+/* TEXTAREA RE-DESIGN - Clean & Seamless */
+.subtitle-text {
+    width: 100%;
+    min-height: 24px;
+    background: transparent !important;
+    /* No box background by default */
+    border: 1px solid transparent !important;
+    /* No border by default */
+    border-radius: 6px;
+    padding: 4px 6px;
+    color: var(--text-main) !important;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.6;
+    resize: none;
+    /* No handle */
+    outline: none !important;
+    opacity: 1 !important;
+    display: block !important;
+    overflow: hidden !important;
+    /* NO SCROLLBARS */
+    transition: all 0.2s ease;
+}
+
+.subtitle-text:focus {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-color: var(--primary) !important;
+    /* Show box only when editing */
+}
+
+.subtitle-text:hover {
+    background: rgba(255, 255, 255, 0.03) !important;
+    /* Subtle hover hint */
+}
+
+.subtitle-text::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
+    font-style: italic;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.7;
+}
+
+/* Loaders & Overlays */
+.processing-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    transition: all 0.3s;
+}
+
+.loader-ring {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+}
+
+.loader-ring:after {
+    content: " ";
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 4px;
+    border-radius: 50%;
+    border: 3px solid var(--primary);
+    border-color: var(--primary) transparent var(--primary) transparent;
+    animation: ring-spin 1.2s linear infinite;
+}
+
+@keyframes ring-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.fade-in-down {
+    animation: fadeInDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+    .editor-grid {
+        grid-template-columns: 1fr 340px;
+    }
+}
+
+@media (max-width: 768px) {
+    .layout-container {
+        padding: 0 10px;
+    }
+
+    .editor-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        overflow-y: auto;
+    }
+
+    .video-column {
+        min-height: auto;
+        padding: 16px;
+    }
+
+    .video-container {
+        min-height: 250px;
+    }
+
+    .subtitle-column {
+        border-left: none;
+        border-top: 1px solid var(--glass-border);
+        min-height: 400px;
+    }
+
+    .logo-text {
+        font-size: 1.2rem;
+    }
+}

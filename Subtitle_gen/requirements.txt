@@ -1,0 +1,9 @@
+flask
+openai-whisper
+ffmpeg-python
+werkzeug
+playwright
+transformers>=4.40.0
+accelerate
+torch
+torchaudio

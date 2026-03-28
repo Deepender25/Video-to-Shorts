@@ -20,5 +20,5 @@ MAX_CLIP_DURATION = 150  # seconds (total short duration, up to 2.5 min)
 
 # ── OpenRouter settings ─────────────────────────────
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "minimax/minimax-m2.5:free")
-CHUNK_MINUTES = 7        # minutes per transcript chunk for long videos
+CHUNK_MINUTES = 30       # minutes per transcript chunk for long videos
 MAX_RETRIES = 3          # retries for API calls

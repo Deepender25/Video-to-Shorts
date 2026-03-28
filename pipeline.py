@@ -103,9 +103,12 @@ def run_download_phase(job_id: str) -> None:
 
 def run_analysis_phase(job_id: str) -> None:
     """
-    Phase 2: LLM segmentation, validation, and cutting.
+    Phase 2: LLM segmentation, validation, and cutting concurrently.
     Called only after user approves via the 'Continue' button.
     """
+    import concurrent.futures
+    import threading
+
     job = _jobs[job_id]
 
     try:
@@ -117,45 +120,93 @@ def run_analysis_phase(job_id: str) -> None:
         transcript_start = merged[0]["start"] if merged else 0
         transcript_end = merged[-1]["end"] if merged else 0
 
-        # ── Step 3: LLM segmentation ────────────────────
+        # ── Step 3: LLM segmentation (Streaming) ────────
         job["status"] = "analyzing"
         job["progress"] = 55
-        job["message"] = "AI is analyzing the content..."
-
+        job["message"] = "AI is streaming analysis and processing clips in parallel..."
+        
         subtitle_lang = job.get("subtitle_lang", "en")
-        raw_clips = segment_transcript(formatted, subtitle_lang=subtitle_lang)
-        if not raw_clips:
-            raise ValueError("AI could not identify any suitable clips.")
-
-        # ── Step 4: Validate ─────────────────────────────
-        job["status"] = "validating"
-        job["progress"] = 75
-        job["message"] = "Validating timestamps..."
-
         video_duration = job.get("duration", 0)
-        valid_clips = validate_clips(
-            raw_clips, video_duration, transcript_start, transcript_end
-        )
-        if not valid_clips:
-            raise ValueError("No clips passed validation. Try a different video.")
-
-        # ── Step 5: Cut video ────────────────────────────
-        job["status"] = "cutting"
-        job["progress"] = 88
-        job["message"] = f"Cutting {len(valid_clips)} clips..."
-
         video_path = job.get("video_path", "")
         output_dir = os.path.join(OUTPUTS_DIR, job_id)
-        final_clips = cut_clips(video_path, valid_clips, output_dir)
+        os.makedirs(output_dir, exist_ok=True)
+        
+        used_ranges = []
+        state_lock = threading.Lock()
+        
+        def process_single_clip(valid_clip):
+            try:
+                # ── Step 5: Cut video ────────────────────────────
+                # cut_clips takes a list, so we pass one
+                final_clips = cut_clips(video_path, [valid_clip], output_dir)
+                if not final_clips:
+                    return
+                
+                final_clip = final_clips[0]
+                clip_video_path = os.path.join(output_dir, final_clip["filename"])
+                
+                # We skip background word-level transcription and burning to keep the pipeline fast.
+                # Word-level generation happens ON DEMAND when user opens the React Editor.
+                final_clip["word_segments"] = []
+                final_clip["burned_filename"] = "" 
+                
+                with state_lock:
+                    job["clips"].append(final_clip)
+                    job["message"] = f"Processed {len(job['clips'])} clips so far..."
+            except Exception as e:
+                print(f"Error processing clip '{valid_clip.get('title')}': {e}")
+                traceback.print_exc()
 
-        if not final_clips:
-            raise ValueError("FFmpeg could not produce any clips.")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            futures = []
+            
+            # segment_transcript yields single clips
+            clip_generator = segment_transcript(formatted, subtitle_lang=subtitle_lang)
+            
+            for raw_clip in clip_generator:
+                if job.get("status") == "error":
+                    break
+                    
+                # Evaluate against used ranges to prevent duplicate coverage
+                with state_lock:
+                    valid = validate_clips([raw_clip], video_duration, transcript_start, transcript_end)
+                    if not valid:
+                        continue
+                    
+                    valid_clip = valid[0]
+                    
+                    # Check overlap manually
+                    overlaps = False
+                    for seg in valid_clip["segments"]:
+                        for used_start, used_end in used_ranges:
+                            if seg["start"] < used_end and seg["end"] > used_start:
+                                overlaps = True
+                                break
+                        if overlaps:
+                            break
+                    
+                    if overlaps:
+                        continue
+                        
+                    # Commit ranges
+                    for seg in valid_clip["segments"]:
+                        used_ranges.append((seg["start"], seg["end"]))
+                        
+                # Submit to worker thread
+                futures.append(executor.submit(process_single_clip, valid_clip))
+            
+            # Wait for all submitted clips to finish processing
+            concurrent.futures.wait(futures)
+
+        if not job["clips"]:
+            if job["status"] != "error":
+                raise ValueError("No clips passed validation or processing failed.")
 
         # ── Done ─────────────────────────────────────────
-        job["status"] = "done"
-        job["progress"] = 100
-        job["message"] = f"Successfully created {len(final_clips)} shorts!"
-        job["clips"] = final_clips
+        if job["status"] != "error":
+            job["status"] = "done"
+            job["progress"] = 100
+            job["message"] = f"Successfully created {len(job['clips'])} shorts!"
 
     except Exception as e:
         job["status"] = "error"
